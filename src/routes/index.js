@@ -1,17 +1,17 @@
 const express = require('express');
-const router = express.Router();
+const path = require('path');
+const app = express();
 
-// ✅ مسار اختبار للتأكد من أن الخادم شغال
-router.get('/', (req, res) => {
-  res.json({ message: '✅ API شغالة تمام على /api/v1' });
+// Serve static files from "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Default route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 🧪 مثال لمسار حملة تجريبية
-router.post('/campaigns/1/start', (req, res) => {
-  // هنا ممكن تضيف منطق بدء الحملة الفعلي
-  res.status(200).json({ message: 'تم بدء الحملة بنجاح 🚀' });
+// Listen on dynamic port for Railway
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
-
-// ⬅️ تقدر تضيف مسارات إضافية هنا حسب احتياجك
-
-module.exports = router;
