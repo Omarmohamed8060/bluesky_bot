@@ -1,0 +1,145 @@
+<div id="alertArea"></div>
+<div id="statusCheck" class="status-box"></div>
+
+<h1>غُرفة العمليات وبدء الحملات</h1>
+
+<div class="card">
+    <h2>🚀 إطلاق حملة جديدة</h2>
+    <form id="startCampaignForm">
+        <div style="display: flex; gap: 20px;">
+            <div class="form-group" style="flex: 1;">
+                <label for="campaignIdSelect"><i class="fas fa-bullhorn"></i> اختيار الحملة:</label>
+                <select id="campaignIdSelect" required>
+                    <option value="">-- يرجى إنشاء حملة أولاً --</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label for="rateLimitDisplay"><i class="fas fa-clock"></i> معدل الإرسال (في العامل):</label>
+                <input type="text" id="rateLimitDisplay" value="5 رسائل / دقيقة" disabled>
+            </div>
+        </div>
+        <button type="submit" id="startCampaignBtn"><i class="fas fa-paper-plane"></i> بدء التشغيل الآن</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📋 ملخص الحسابات النشطة</h2>
+    <table id="accountsSummaryTable">
+        <thead>
+            <tr>
+                <th>Handle</th>
+                <th>الحالة</th>
+                <th>إجمالي الإرسال اليومي</th>
+                <th>آخر استخدام</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="4">جاري تحميل البيانات...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h2>⏱️ سجل الحملات الأخيرة</h2>
+    <table id="campaignsLogTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>اسم الحملة</th>
+                <th>الحالة</th>
+                <th>القائمة المستهدفة</th>
+                <th>تم الإنشاء</th>
+                <th>إجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="6">جاري تحميل سجل الحملات...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // وظيفة العرض الخاصة بلوحة التحكم (Dashboard)
+    // ----------------------------------------------------
+    window.renderDashboard = async function() {
+        const data = await App.fetchAllData(); 
+
+        if (!data) return; 
+
+        const { accounts, campaigns, targetLists } = data;
+        
+        // 1. ملء قائمة اختيار الحملة
+        const campaignSelect = document.getElementById('campaignIdSelect');
+        campaignSelect.innerHTML = '<option value="">-- يرجى اختيار حملة --</option>';
+        
+        if (campaigns.length > 0) {
+            campaigns.forEach(c => {
+                const listName = targetLists.find(l => l.id === c.targetListId)?.name || 'قائمة محذوفة'; // البحث عن اسم القائمة
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = `[ID: ${c.id}] ${c.name} (القائمة: ${listName}, الحالة: ${c.status})`;
+                campaignSelect.appendChild(option);
+            });
+        }
+        
+        // 2. ملء جدول ملخص الحسابات
+        const accountsTbody = document.querySelector('#accountsSummaryTable tbody');
+        accountsTbody.innerHTML = '';
+        if (accounts.length === 0) {
+            accountsTbody.innerHTML = '<tr><td colspan="4">لا يوجد حسابات مُضافة حالياً.</td></tr>';
+        } else {
+            accounts.forEach(account => {
+                const row = accountsTbody.insertRow();
+                row.insertCell().textContent = account.handle;
+                row.insertCell().textContent = account.status === 'active' ? '✅ نشط' : '❌ معطل';
+                row.insertCell().textContent = account.dailySendCount;
+                row.insertCell().textContent = account.lastUsedAt ? new Date(account.lastUsedAt).toLocaleTimeString('ar-EG') : 'لم يستخدم';
+            });
+        }
+        
+        // 3. ملء سجل الحملات الأخيرة
+        const campaignsTbody = document.querySelector('#campaignsLogTable tbody');
+        campaignsTbody.innerHTML = '';
+        if (campaigns.length === 0) {
+            campaignsTbody.innerHTML = '<tr><td colspan="6">لا يوجد حملات مُنشأة بعد.</td></tr>';
+        } else {
+            campaigns.forEach(c => {
+                const listName = targetLists.find(l => l.id === c.targetListId)?.name || 'قائمة محذوفة'; 
+                
+                const row = campaignsTbody.insertRow();
+                row.insertCell().textContent = c.id;
+                row.insertCell().textContent = c.name;
+                row.insertCell().textContent = c.status;
+                row.insertCell().textContent = listName;
+                row.insertCell().textContent = new Date(c.createdAt).toLocaleDateString('ar-EG');
+                
+                const actionCell = row.insertCell();
+                if (c.status === 'draft') {
+                    const startBtn = document.createElement('button');
+                    startBtn.textContent = 'تشغيل';
+                    startBtn.onclick = () => App.startCampaign(c.id).then(window.renderDashboard);
+                    actionCell.appendChild(startBtn);
+                } else if (c.status === 'running') {
+                    actionCell.innerHTML = '<span style="color:var(--color-secondary);">قيد التشغيل</span>';
+                } else {
+                    actionCell.innerHTML = 'مكتمل';
+                }
+            });
+        }
+    }
+    
+    // ربط وظيفة إطلاق الحملة بالنموذج
+    document.getElementById('startCampaignForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const campaignId = document.getElementById('campaignIdSelect').value;
+        if (!campaignId) {
+            App.showAlert('يجب اختيار حملة أولاً.', 'error');
+            return;
+        }
+        await App.startCampaign(campaignId);
+        window.renderDashboard(); // إعادة تحميل الحالة بعد البدء
+    });
+    
+    // يتم تشغيل renderDashboard بواسطة index.html عند تحميل هذه الصفحة
+</script>

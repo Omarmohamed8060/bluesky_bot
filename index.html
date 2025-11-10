@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlueReach Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="theme-navy">
+<div class="loader-bar" id="loaderBar"></div>
+<div class="app">
+  <aside class="sidebar slide-in">
+    <div class="brand shimmer"><i class="fa-solid fa-feather"></i><span>BlueReach Suite</span></div>
+    <nav class="nav">
+      <button class="nav-btn active ripple" data-page="dashboard"><i class="fa-solid fa-gauge-high"></i><span>لوحة التحكم</span></button>
+      <button class="nav-btn ripple" data-page="accounts"><i class="fa-solid fa-users"></i><span>الحسابات</span></button>
+      <button class="nav-btn ripple" data-page="templates"><i class="fa-solid fa-file-lines"></i><span>القوالب</span></button>
+      <button class="nav-btn ripple" data-page="lists"><i class="fa-solid fa-list-check"></i><span>القوائم</span></button>
+      <button class="nav-btn ripple" data-page="campaigns"><i class="fa-solid fa-bullhorn"></i><span>الحملات</span></button>
+      <button class="nav-btn ripple" data-page="logs"><i class="fa-solid fa-clipboard-list"></i><span>السجلات</span></button>
+      <button class="nav-btn ripple" data-page="analytics"><i class="fa-solid fa-chart-line"></i><span>التقارير</span></button>
+      <button class="nav-btn ripple" data-page="settings"><i class="fa-solid fa-sliders"></i><span>الإعدادات</span></button>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="themeToggle" class="btn small ripple"><i class="fa-solid fa-sun"></i><span>تبديل الثيم</span></button>
+    </div>
+  </aside>
+
+  <main class="main fade-in">
+    <header class="header">
+      <h1 class="title-xxl slide-in-delay">نظام إدارة حملات Bluesky</h1>
+      <div id="status" class="status offline"><i class="fa-solid fa-circle"></i><span>الخادم غير متصل</span></div>
+    </header>
+
+    <section id="dashboard" class="page page-active">
+      <div class="grid-4">
+        <div class="card kpi hover-lift"><div class="kpi-title">الحسابات</div><div id="kpiAccounts" class="kpi-value count-up">0</div></div>
+        <div class="card kpi hover-lift"><div class="kpi-title">القوالب</div><div id="kpiTemplates" class="kpi-value count-up">0</div></div>
+        <div class="card kpi hover-lift"><div class="kpi-title">القوائم</div><div id="kpiLists" class="kpi-value count-up">0</div></div>
+        <div class="card kpi hover-lift"><div class="kpi-title">نجاحات اليوم</div><div id="kpiSends" class="kpi-value count-up">0</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إرسال مباشر</h2></div>
+          <form id="formDirectPost" class="form">
+            <label>نص البوست<textarea id="directText" rows="5" required placeholder="اكتب رسالتك بوضوح..."></textarea></label>
+            <div class="row">
+              <button type="submit" class="btn primary ripple"><i class="fa-solid fa-paper-plane"></i><span>إرسال الآن</span></button>
+              <button type="button" id="btnClearDirect" class="btn ripple"><i class="fa-solid fa-eraser"></i><span>تفريغ</span></button>
+            </div>
+            <div class="hint">يتم استخدام أول حساب مضاف للإرسال المباشر.</div>
+          </form>
+        </div>
+
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إنشاء سريع للحملة</h2></div>
+          <form id="formQuickCampaign" class="form">
+            <label>اسم الحملة<input id="qcName" type="text" required placeholder="اسم واضح"></label>
+            <label>القالب<select id="qcTemplate" required></select></label>
+            <label>القائمة<select id="qcList" required></select></label>
+            <label>بدء بعد ثواني<input id="qcDelay" type="number" value="5" min="1" required></label>
+            <div class="row"><button type="submit" class="btn ripple"><i class="fa-solid fa-bullhorn"></i><span>إنشاء وبدء</span></button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="accounts" class="page">
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إضافة حساب</h2></div>
+          <form id="formAddAccount" class="form">
+            <label>Handle<input id="accHandle" type="text" required placeholder="handle.bsky.social"></label>
+            <label>App Password<input id="accPass" type="password" required placeholder="xxxx-xxxx-xxxx-xxxx"></label>
+            <div class="row">
+              <button type="submit" class="btn primary ripple"><i class="fa-solid fa-user-plus"></i><span>إضافة</span></button>
+              <button type="button" id="btnLoadAccounts" class="btn ripple"><i class="fa-solid fa-rotate"></i><span>تحديث</span></button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">خيارات الحد الزمني</h2></div>
+          <form id="formRateOptions" class="form">
+            <label>حد/ساعة لكل حساب<input id="accRate" type="number" value="5" min="1"></label>
+            <label>إعادة المحاولة<input id="accRetry" type="number" value="2" min="0"></label>
+            <div class="row"><button type="submit" class="btn ripple"><i class="fa-solid fa-floppy-disk"></i><span>حفظ</span></button></div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card hover-lift">
+        <div class="card-head"><h2 class="title-lg">الحسابات</h2></div>
+        <table id="tableAccounts" class="table-anim">
+          <thead><tr><th>Handle</th><th>ID</th><th>الحالة</th><th>حد/ساعة</th><th>مرسل</th><th>آخر تحديث</th><th>أوامر</th></tr></thead>
+          <tbody><tr><td colspan="7">تحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="templates" class="page">
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إنشاء قالب</h2></div>
+          <form id="formAddTemplate" class="form">
+            <label>اسم القالب<input id="tplName" type="text" required></label>
+            <label>المحتوى<textarea id="tplContent" rows="7" required placeholder="مرحبا {{name}} 👋 — تابعنا: {{link}}"></textarea></label>
+            <div class="row"><button type="submit" class="btn primary ripple"><i class="fa-solid fa-save"></i><span>حفظ</span></button></div>
+          </form>
+        </div>
+
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">اختبار قالب</h2></div>
+          <form id="formPreviewTemplate" class="form">
+            <label>Handle الهدف<input id="prevHandle" type="text" placeholder="user.bsky.social"></label>
+            <label>نص القالب<textarea id="prevContent" rows="7" placeholder="مرحبا {{name}}"></textarea></label>
+            <div class="row"><button type="submit" class="btn ripple"><i class="fa-solid fa-eye"></i><span>معاينة</span></button></div>
+          </form>
+          <div id="tplPreview" class="preview fade-in"></div>
+        </div>
+      </div>
+
+      <div class="card hover-lift">
+        <div class="card-head"><h2 class="title-lg">القوالب</h2></div>
+        <table id="tableTemplates" class="table-anim">
+          <thead><tr><th>ID</th><th>اسم</th><th>المحتوى</th><th>أوامر</th></tr></thead>
+          <tbody><tr><td colspan="4">تحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="lists" class="page">
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إنشاء قائمة أهداف</h2></div>
+          <form id="formAddList" class="form">
+            <label>اسم القائمة<input id="listName" type="text" required></label>
+            <div class="row"><button type="submit" class="btn primary ripple"><i class="fa-solid fa-plus"></i><span>إنشاء</span></button></div>
+          </form>
+        </div>
+
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إضافة هدف</h2></div>
+          <form id="formAddTarget" class="form">
+            <label>اختر قائمة<select id="targetListSelect"></select></label>
+            <label>Handle الهدف<input id="targetHandle" type="text" placeholder="user.bsky.social"></label>
+            <div class="row"><button type="submit" class="btn ripple"><i class="fa-solid fa-user-plus"></i><span>إضافة هدف</span></button></div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card hover-lift">
+        <div class="card-head"><h2 class="title-lg">القوائم</h2></div>
+        <table id="tableLists" class="table-anim">
+          <thead><tr><th>ID</th><th>اسم</th><th>عدد</th><th>تاريخ الإنشاء</th><th>أوامر</th></tr></thead>
+          <tbody><tr><td colspan="5">تحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="campaigns" class="page">
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">إنشاء حملة</h2></div>
+          <form id="formAddCampaign" class="form">
+            <label>اسم الحملة<input id="campName" type="text" required></label>
+            <label>القالب<select id="campTemplate" required></select></label>
+            <label>القائمة<select id="campList" required></select></label>
+            <label>Delay (ثواني)<input id="campDelay" type="number" value="5" min="1" required></label>
+            <div class="row"><button type="submit" class="btn primary ripple"><i class="fa-solid fa-bullhorn"></i><span>إنشاء وبدء</span></button></div>
+          </form>
+        </div>
+
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">حالة الحملة</h2></div>
+          <div class="grid-2">
+            <div class="statbox">
+              <div class="stat-title">الحالة</div><div id="campState" class="stat-value">—</div>
+            </div>
+            <div class="statbox">
+              <div class="stat-title">التقدم</div><div id="campProgress" class="stat-value">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card hover-lift">
+        <div class="card-head"><h2 class="title-lg">الحملات</h2></div>
+        <table id="tableCampaigns" class="table-anim">
+          <thead><tr><th>ID</th><th>اسم</th><th>القالب</th><th>القائمة</th><th>الحالة</th><th>التقدم</th><th>Delay</th><th>أوامر</th></tr></thead>
+          <tbody><tr><td colspan="8">تحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="logs" class="page">
+      <div class="card hover-lift">
+        <div class="card-head"><h2 class="title-lg">سجل الإرسال</h2></div>
+        <table id="tableLogs" class="table-anim">
+          <thead><tr><th>الوقت</th><th>الحساب</th><th>القالب</th><th>الهدف</th><th>الحالة</th><th>رسالة/خطأ</th></tr></thead>
+          <tbody><tr><td colspan="6">تحميل...</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="analytics" class="page">
+      <div class="grid-3">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">نجاحات يومية</h2></div>
+          <div id="chartDaily" class="chart spark"></div>
+        </div>
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">أخطاء حسب النوع</h2></div>
+          <div id="chartErrors" class="chart spark"></div>
+        </div>
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">الرسل لكل حساب</h2></div>
+          <div id="chartPerAccount" class="chart spark"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="grid-2">
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">تكوين عام</h2></div>
+          <form id="formSettings" class="form">
+            <label>حد/ساعة<input id="setRate" type="number" value="5" min="1"></label>
+            <label>محاولات إعادة إرسال<input id="setRetry" type="number" value="2" min="0"></label>
+            <div class="row"><button type="submit" class="btn ripple"><i class="fa-solid fa-floppy-disk"></i><span>حفظ</span></button></div>
+          </form>
+        </div>
+        <div class="card hover-lift">
+          <div class="card-head"><h2 class="title-lg">معلومات النظام</h2></div>
+          <div class="sysinfo">
+            <div><span>النسخة:</span> 1.0.0</div>
+            <div><span>الحالة:</span> <span id="sysStatus">—</span></div>
+            <div><span>الوقت:</span> <span id="sysTime">—</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const API='/api/v1'
+function el(q){return document.querySelector(q)}
+function els(q){return Array.from(document.querySelectorAll(q))}
+function showToast(m,ok=true){const t=el('#toast');t.textContent=m;t.className='toast';if(!ok)t.classList.add('err');t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),2800)}
+
+function ripple(e){const rect=e.currentTarget.getBoundingClientRect();const c=document.createElement('span');c.className='ripple-circle';c.style.left=(e.clientX-rect.left)+'px';c.style.top=(e.clientY-rect.top)+'px';e.currentTarget.appendChild(c);setTimeout(()=>c.remove(),650)}
+els('.ripple').forEach(b=>b.addEventListener('click',ripple))
+
+function switchPage(id){
+  els('.page').forEach(p=>p.classList.remove('page-active'))
+  el('#'+id).classList.add('page-active')
+  els('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===id))
+  const lb=el('#loaderBar');lb.classList.add('on');setTimeout(()=>lb.classList.remove('on'),450)
+}
+
+async function apiGet(p){const r=await fetch(API+p);if(!r.ok)throw r;return r.json()}
+async function apiPost(p,b){const r=await fetch(API+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return r.json()}
+async function apiDelete(p){const r=await fetch(API+p,{method:'DELETE'});return r.json()}
+function badge(s){const m={'مجدولة':'badge scheduled','قيد التنفيذ':'badge running','موقوفة':'badge stopped','منفذة':'badge done','فشل':'badge failed'};return `<span class="${m[s]||'badge'}">${s}</span>`}
+
+async function checkStatus(){
+  try{
+    const j=await apiGet('/health')
+    el('#status').className='status online'
+    el('#status span').textContent='الخادم متصل'
+    el('#sysStatus')&& (el('#sysStatus').textContent='متصل')
+    el('#sysTime')&& (el('#sysTime').textContent=new Date(j.time||Date.now()).toLocaleString())
+  }catch{
+    el('#status').className='status offline'
+    el('#status span').textContent='الخادم غير متصل'
+    el('#sysStatus')&& (el('#sysStatus').textContent='غير متصل')
+  }
+}
+
+function animateCount(elm,val){const start=parseInt(elm.textContent||'0',10);const end=parseInt(val||'0',10);if(isNaN(end))return;const d=Math.max(400,Math.min(1100,Math.abs(end-start)*40));const s=performance.now();function step(t){const p=Math.min(1,(t-s)/d);elm.textContent=String(Math.round(start+(end-start)*p));if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
+
+async function loadKPIs(){try{const j=await apiGet('/kpis');animateCount(el('#kpiAccounts'),j.accounts);animateCount(el('#kpiTemplates'),j.templates);animateCount(el('#kpiLists'),j.lists);animateCount(el('#kpiSends'),j.sendsToday)}catch{}}
+async function loadAccounts(){const t=el('#tableAccounts tbody');try{const j=await apiGet('/accounts');t.innerHTML=j.accounts.length?j.accounts.map(a=>`<tr class="row-fade"><td>${a.handle}</td><td>${a.id}</td><td>${a.status}</td><td>${a.rateLimit}</td><td>${a.dailyCount}</td><td>${a.updatedAt?new Date(a.updatedAt).toLocaleString():'-'}</td><td><button data-del="${a.id}" class="btn small ripple">حذف</button></td></tr>`).join(''):`<tr><td colspan="7">لا توجد حسابات</td></tr>`}catch{t.innerHTML=`<tr><td colspan="7">خطأ في التحميل</td></tr>`}}
+async function loadTemplates(){const t=el('#tableTemplates tbody');try{const j=await apiGet('/templates');t.innerHTML=j.templates.length?j.templates.map(tp=>`<tr class="row-fade"><td>${tp.id}</td><td>${tp.name}</td><td>${tp.content.replace(/</g,'&lt;')}</td><td><button data-deltpl="${tp.id}" class="btn small ripple">حذف</button></td></tr>`).join(''):`<tr><td colspan="4">لا توجد قوالب</td></tr>`;el('#campTemplate').innerHTML=j.templates.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');el('#qcTemplate').innerHTML=el('#campTemplate').innerHTML}catch{t.innerHTML=`<tr><td colspan="4">خطأ في التحميل</td></tr>`}}
+async function loadLists(){const t=el('#tableLists tbody');try{const j=await apiGet('/target-lists');t.innerHTML=j.lists.length?j.lists.map(l=>`<tr class="row-fade"><td>${l.id}</td><td>${l.name}</td><td>${l.targetsCount}</td><td>${l.createdAt?new Date(l.createdAt).toLocaleString():'-'}</td><td><button data-open="${l.id}" class="btn small ripple">إدارة</button> <button data-dellist="${l.id}" class="btn small ripple">حذف</button></td></tr>`).join(''):`<tr><td colspan="5">لا توجد قوائم</td></tr>`;const opts=j.lists.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');el('#campList').innerHTML=opts;el('#qcList').innerHTML=opts;el('#targetListSelect').innerHTML=opts}catch{t.innerHTML=`<tr><td colspan="5">خطأ في التحميل</td></tr>`}}
+async function loadCampaigns(){const t=el('#tableCampaigns tbody');try{const j=await apiGet('/campaigns');t.innerHTML=j.campaigns.length?j.campaigns.map(c=>`<tr class="row-fade"><td>${c.id}</td><td>${c.name}</td><td>${c.templateName||c.templateId}</td><td>${c.listName||c.listId}</td><td>${badge(c.status)}</td><td>${(c.progress?(c.progress.sent+'/'+c.progress.total):'-')}</td><td>${c.delay}s</td><td><button data-stop="${c.id}" class="btn small ripple">إيقاف</button> <button data-start="${c.id}" class="btn small ripple">تشغيل</button> <button data-delcamp="${c.id}" class="btn small ripple">حذف</button></td></tr>`).join(''):`<tr><td colspan="8">لا توجد حملات</td></tr>`}catch{t.innerHTML=`<tr><td colspan="8">خطأ في التحميل</td></tr>`}}
+async function loadLogs(){const t=el('#tableLogs tbody');try{const j=await apiGet('/logs');t.innerHTML=j.logs.length?j.logs.map(l=>`<tr class="row-fade"><td>${l.timestamp?new Date(l.timestamp).toLocaleString():'-'}</td><td>${l.accountHandle||'-'}</td><td>${l.templateName||'-'}</td><td>${l.targetHandle||'-'}</td><td>${l.status||'-'}</td><td>${l.message?l.message:(l.error?l.error:'-')}</td></tr>`).join(''):`<tr><td colspan="6">لا توجد سجلات</td></tr>`}catch{t.innerHTML=`<tr><td colspan="6">خطأ في التحميل</td></tr>`}}
+
+els('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)))
+document.getElementById('themeToggle').addEventListener('click',()=>{document.documentElement.classList.toggle('light');showToast('تم تبديل الثيم')})
+
+el('#formDirectPost')?.addEventListener('submit',async e=>{e.preventDefault();const t=el('#directText').value.trim();if(!t){showToast('اكتب النص',false);return}const j=await apiPost('/direct-post',{text:t});showToast(j.success?'تم إرسال البوست':'فشل',!j.success)})
+el('#btnClearDirect')?.addEventListener('click',()=>{el('#directText').value='';showToast('تم التفريغ')})
+el('#formAddAccount')?.addEventListener('submit',async e=>{e.preventDefault();const h=el('#accHandle').value.trim(),p=el('#accPass').value.trim();if(!h||!p){showToast('اكمل الحقول',false);return}const j=await apiPost('/add-account',{handle:h,password:p});showToast(j.success?'تمت إضافة الحساب':'فشل',!j.success);await loadAccounts()})
+el('#btnLoadAccounts')?.addEventListener('click',loadAccounts)
+el('#formRateOptions')?.addEventListener('submit',async e=>{e.preventDefault();const rate=parseInt(el('#accRate').value,10),retry=parseInt(el('#accRetry').value,10);const j=await apiPost('/settings',{rateLimit:rate,retryCount:retry});showToast(j.success?'تم الحفظ':'فشل',!j.success);await loadAccounts()})
+el('#formAddTemplate')?.addEventListener('submit',async e=>{e.preventDefault();const name=el('#tplName').value.trim(),content=el('#tplContent').value.trim();if(!name||!content){showToast('اكمل الحقول',false);return}const j=await apiPost('/templates',{name,content});showToast(j.success?'تم حفظ القالب':'فشل',!j.success);await loadTemplates()})
+el('#formPreviewTemplate')?.addEventListener('submit',e=>{e.preventDefault();const handle=(el('#prevHandle').value||'user.bsky.social').trim();let content=el('#prevContent').value.trim();if(!content)content='مرحبا {{name}} — زرنا: {{link}}';const name=handle.split('.')[0]||handle;content=content.replaceAll('{{name}}',name).replaceAll('{{handle}}',handle).replaceAll('{{link}}','https://bsky.app/profile/'+handle);el('#tplPreview').textContent=content;el('#tplPreview').classList.add('flash');setTimeout(()=>el('#tplPreview').classList.remove('flash'),520);showToast('تمت المعاينة')})
+el('#formAddList')?.addEventListener('submit',async e=>{e.preventDefault();const name=el('#listName').value.trim();if(!name){showToast('ادخل اسم',false);return}const j=await apiPost('/target-lists',{name});showToast(j.success?'تم إنشاء القائمة':'فشل',!j.success);await loadLists()})
+el('#formAddTarget')?.addEventListener('submit',async e=>{e.preventDefault();const listId=el('#targetListSelect').value,handle=el('#targetHandle').value.trim();if(!listId||!handle){showToast('أكمل الحقول',false);return}const j=await apiPost(`/target-lists/${listId}/targets`,{handle});showToast(j.success?'تمت إضافة الهدف':'فشل',!j.success);await loadLists()})
+el('#formAddCampaign')?.addEventListener('submit',async e=>{e.preventDefault();const name=el('#campName').value.trim(),templateId=el('#campTemplate').value,listId=el('#campList').value,delay=parseInt(el('#campDelay').value||'5',10);if(!name||!templateId||!listId){showToast('أكمل الحقول',false);return}const j=await apiPost('/campaigns',{name,templateId,listId,delay});showToast(j.success?'تم إنشاء الحملة':'فشل',!j.success);await loadCampaigns()})
+document.addEventListener('click',async e=>{const d=e.target;if(d.dataset?.del){const id=d.dataset.del;if(confirm('حذف؟')){const j=await apiDelete('/accounts/'+id);showToast(j.success?'تم الحذف':'فشل',!j.success);await loadAccounts()}} if(d.dataset?.deltpl){const id=d.dataset.deltpl;if(confirm('حذف القالب؟')){const j=await apiDelete('/templates/'+id);showToast(j.success?'تم الحذف':'فشل',!j.success);await loadTemplates()}} if(d.dataset?.dellist){const id=d.dataset.dellist;if(confirm('حذف القائمة؟')){const j=await apiDelete('/target-lists/'+id);showToast(j.success?'تم الحذف':'فشل',!j.success);await loadLists()}} if(d.dataset?.open){const id=d.dataset.open;const handle=prompt('أدخل Handle لإضافته للقائمة '+id);if(handle){const j=await apiPost(`/target-lists/${id}/targets`,{handle});showToast(j.success?'تمت الإضافة':'فشل',!j.success);await loadLists()}} if(d.dataset?.stop){const id=d.dataset.stop;const j=await apiPost(`/campaigns/${id}/stop`,{});showToast(j.success?'تم الإيقاف':'فشل',!j.success);await loadCampaigns()} if(d.dataset?.start){const id=d.dataset.start;const j=await apiPost(`/campaigns/${id}/start`,{});showToast(j.success?'تم التشغيل':'فشل',!j.success);await loadCampaigns()} if(d.dataset?.delcamp){const id=d.dataset.delcamp;if(confirm('حذف الحملة؟')){const j=await apiDelete('/campaigns/'+id);showToast(j.success?'تم الحذف':'فشل',!j.success);await loadCampaigns()}}})
+function spark(el){el.classList.add('spark-on');setTimeout(()=>el.classList.remove('spark-on'),650)}
+;['chartDaily','chartErrors','chartPerAccount'].forEach(id=>{const c=el('#'+id);if(c){c.addEventListener('mouseenter',()=>spark(c))}})
+async function init(){els('.nav-btn').forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)));await checkStatus();await loadKPIs();await loadAccounts();await loadTemplates();await loadLists();await loadCampaigns();await loadLogs();setInterval(async()=>{await checkStatus();await loadCampaigns();await loadKPIs()},3200)}
+window.addEventListener('load',init)
+</script>
+</body>
+</html>

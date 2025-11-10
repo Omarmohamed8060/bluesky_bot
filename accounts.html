@@ -1,0 +1,125 @@
+<div id="alertArea"></div>
+
+<div class="card">
+    <h2>🔑 إضافة حساب إرسال جديد</h2>
+    <form id="addAccountForm">
+        <div class="form-group">
+            <label for="handle">اسم المستخدم (Handle):</label>
+            <input type="text" id="handle" placeholder="مثال: user.bsky.social" required>
+        </div>
+        <div class="form-group">
+            <label for="appPassword">كلمة مرور التطبيق (App Password):</label>
+            <input type="password" id="appPassword" placeholder="xxxx-xxxx-xxxx-xxxx" required>
+        </div>
+        <button type="submit"><i class="fas fa-plus-circle"></i> إضافة وتفعيل الحساب</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>📋 الحسابات المسجلة</h2>
+    <table id="accountsTable">
+        <thead>
+            <tr>
+                <th>Handle</th>
+                <th>ID</th>
+                <th>الحالة</th>
+                <th>إجمالي الإرسال اليومي</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="5">جاري تحميل الحسابات...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // ----------------------------------------------------
+    // وظيفة إضافة حساب
+    // ----------------------------------------------------
+    document.getElementById('addAccountForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const handle = document.getElementById('handle').value;
+        const appPassword = document.getElementById('appPassword').value;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/accounts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ handle, appPassword })
+            });
+
+            const result = await response.json();
+
+            if (response.status === 201) {
+                App.showAlert(`✅ تم إضافة الحساب ${result.account.handle} بنجاح!`, 'success');
+                e.target.reset(); 
+                fetchAndRenderAccounts(); 
+            } else {
+                App.showAlert(`❌ فشل الإضافة: ${result.error || 'خطأ غير معروف.'}`, 'error');
+            }
+        } catch (error) {
+            App.showAlert('❌ فشل الاتصال بالخادم لإضافة الحساب.', 'error');
+        }
+    });
+
+    // ----------------------------------------------------
+    // وظيفة جلب وعرض الحسابات
+    // ----------------------------------------------------
+    async function fetchAndRenderAccounts() {
+        const tbody = document.querySelector('#accountsTable tbody');
+        tbody.innerHTML = '<tr><td colspan="5">جاري التحميل...</td></tr>';
+        
+        try {
+            const accounts = await App.fetchAccounts();
+
+            tbody.innerHTML = '';
+            if (accounts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">لا يوجد حسابات مُضافة حالياً.</td></tr>';
+                return;
+            }
+
+            accounts.forEach(account => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = account.handle;
+                row.insertCell().textContent = account.id;
+                row.insertCell().textContent = account.status === 'active' ? '✅ نشط' : '❌ معطل';
+                row.insertCell().textContent = account.dailySendCount;
+                
+                const actionCell = row.insertCell();
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'حذف';
+                deleteBtn.className = 'btn-danger';
+                deleteBtn.onclick = () => deleteAccount(account.id, account.handle);
+                actionCell.appendChild(deleteBtn);
+            });
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="5">فشل تحميل الحسابات.</td></tr>';
+        }
+    }
+    
+    // ----------------------------------------------------
+    // وظيفة الحذف
+    // ----------------------------------------------------
+    async function deleteAccount(id, handle) {
+        if (!confirm(`هل أنت متأكد من حذف الحساب ${handle}؟`)) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/accounts/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.status === 204) {
+                App.showAlert(`🗑️ تم حذف الحساب ${handle} بنجاح!`, 'success');
+                fetchAndRenderAccounts();
+            } else {
+                App.showAlert(`❌ فشل الحذف.`, 'error');
+            }
+        } catch (error) {
+            App.showAlert('❌ فشل الاتصال بالخادم للحذف.', 'error');
+        }
+    }
+
+    // تشغيل جلب البيانات عند تحميل الصفحة
+    fetchAndRenderAccounts();
+</script>
